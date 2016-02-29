@@ -4,8 +4,6 @@ import com.appdevery.*;
 import com.appdevery.helloworld.R;
 import com.appdevery.helloworld.services.Exception.AuthenticationException;
 import com.appdevery.helloworld.utils.ApiClient;
-import com.loopj.android.http.JsonHttpResponseHandler;
-import com.loopj.android.http.RequestParams;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -15,9 +13,15 @@ import android.util.Log;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.prefs.Preferences;
 
-import cz.msebera.android.httpclient.Header;
+import okhttp3.FormBody;
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+import okio.BufferedSink;
+
 
 /**
  * Created by robert on 27/2/2016.
@@ -45,52 +49,51 @@ public class AuthService extends BaseService {
     {
         try
         {
-            RequestParams params = new RequestParams();
-            params.put("grant_type", "password");
-            params.put("username", username.toLowerCase());
-            params.put("password", password);
-            params.put("client_id", context.getString(R.string.client_id));
-            params.put("client_secret", context.getString(R.string.client_secret));
+            RequestBody requestBody = new FormBody.Builder()
+                    .add("grant_type", "password")
+                    .add("username", username.toLowerCase())
+                    .add("password", password)
+                    .add("client_id", context.getString(R.string.client_id))
+                    .add("client_secret", context.getString(R.string.client_secret))
+                    .build();
 
-            ApiClient.post("api/oauth2/token", params, new JsonHttpResponseHandler() {
-                @Override
-                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                    Log.d(LOG_TAG, response.toString());
-                    // If the response is JSONObject instead of expected JSONArray
-                }
+            Response response = ApiClient.post("api/oauth2/token", requestBody);
 
-                @Override
-                public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
-                    Log.d(LOG_TAG, "Status Code: " + statusCode + "\nMessage: " + responseString);
-                }
+            if(response.isSuccessful())
+            {
+                String responseText = response.body().string();
 
-                @Override
-                public  void onFailure(int statusCode, Header[] header, Throwable throwable, JSONObject jsonObject)
+                Log.d(LOG_TAG, "Response text: " + responseText);
+
+                JSONObject jsonData = new JSONObject(responseText);
+
+                String accessToken = jsonData.getString("access_token");
+                String refreshToken = jsonData.getString("refresh_token");
+
+                Editor editor = this.getAuthPreferences().edit();
+                editor.putString(AuthService.PREFERENCE_KEY_ACCESS_TOKEN, accessToken);
+                editor.putString(AuthService.PREFERENCE_KEY_REFRESH_TOKEN, refreshToken);
+                editor.putString(AuthService.PREFERENCE_KEY_IDENTITY, username);
+
+                return editor.commit();
+            }else{
+                response.body().close();
+                Log.d(LOG_TAG, "Response Code: " + response.code());
+                if(response.code() == 400)
                 {
-                    Log.d(LOG_TAG, "Status Code: " + statusCode + "\nMessage: " + jsonObject.toString());
-
-                    if(statusCode == 400)
-                    {
-                    }else{
-
-                    }
+                    throw new AuthenticationException("Incorrect username or password.");
+                }else{
+                    throw new AuthenticationException("Unable to log you in at this time. Try again later.");
                 }
-            });
+            }
         }
-        catch(Exception e)
+        catch(IOException e) {
+            Log.e(LOG_TAG, "Error: " + e.getMessage());
+            throw new AuthenticationException("Internet access is not available.");
+        }catch(JSONException e)
         {
             Log.e(LOG_TAG, "Error: " + e.getMessage());
-        }
-
-        if(username.toLowerCase().equals("admin") && password.equals("admin"))
-        {
-            Editor editor = this.getAuthPreferences().edit();
-            editor.putString(AuthService.PREFERENCE_KEY_ACCESS_TOKEN, "token");
-            editor.putString(AuthService.PREFERENCE_KEY_IDENTITY, username);
-
-            return editor.commit();
-        }else {
-            throw new AuthenticationException("Username or password is incorrect.");
+            throw new AuthenticationException("Unable to login user.");
         }
     }
 
