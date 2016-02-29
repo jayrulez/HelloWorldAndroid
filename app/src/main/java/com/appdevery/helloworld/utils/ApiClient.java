@@ -8,19 +8,19 @@ import com.loopj.android.http.*;
  */
 public class ApiClient {
     private static final String LOG_TAG = "ApiClient";
-    private static final String BASE_URL = "http://localhost:8000/";
+    private static final String BASE_URL = "http://api.appdevery.com/";
 
     private static AsyncHttpClient client = new AsyncHttpClient();
 
     public static void get(String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
         url = getAbsoluteUrl(url);
-        Log.d(LOG_TAG, "GET request to: " + url);
+        Log.d(LOG_TAG, "GET request to: " + url + ", params: " + params != null? params.toString() : "");
         client.get(url, params, responseHandler);
     }
 
     public static void post(String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
         url = getAbsoluteUrl(url);
-        Log.d(LOG_TAG, "POST request to: " + url);
+        Log.d(LOG_TAG, "POST request to: " + url + ", params: " + params != null? params.toString() : "");
         client.post(url, params, responseHandler);
     }
 

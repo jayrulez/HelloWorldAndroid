@@ -12,6 +12,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.util.Log;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.prefs.Preferences;
@@ -21,23 +22,23 @@ import cz.msebera.android.httpclient.Header;
 /**
  * Created by robert on 27/2/2016.
  */
-public class AuthService {
+public class AuthService extends BaseService {
     private static final String LOG_TAG = "AuthService";
     private static final String AUTH_PREFERENCES = "Auth";
     private static final String PREFERENCE_KEY_ACCESS_TOKEN = "access_token";
+    private static final String PREFERENCE_KEY_REFRESH_TOKEN = "refresh_token";
     private static final String PREFERENCE_KEY_IDENTITY = "identity";
-
-    private Context context;
 
     public AuthService(Context context)
     {
-        this.context = context;
+        super(context);
+
         Log.d(LOG_TAG, "AuthService created.");
     }
 
     private SharedPreferences getAuthPreferences()
     {
-        return this.context.getSharedPreferences(AuthService.AUTH_PREFERENCES, Context.MODE_PRIVATE);
+        return context.getSharedPreferences(AuthService.AUTH_PREFERENCES, Context.MODE_PRIVATE);
     }
 
     public boolean authenticate(String username, String password) throws AuthenticationException
@@ -48,10 +49,10 @@ public class AuthService {
             params.put("grant_type", "password");
             params.put("username", username.toLowerCase());
             params.put("password", password);
-            params.put("client_id", R.string.client_id);
-            params.put("client_secret", R.string.client_secret);
+            params.put("client_id", context.getString(R.string.client_id));
+            params.put("client_secret", context.getString(R.string.client_secret));
 
-            ApiClient.get("api/oauth2/token", params, new JsonHttpResponseHandler() {
+            ApiClient.post("api/oauth2/token", params, new JsonHttpResponseHandler() {
                 @Override
                 public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                     Log.d(LOG_TAG, response.toString());
@@ -67,9 +68,16 @@ public class AuthService {
                 public  void onFailure(int statusCode, Header[] header, Throwable throwable, JSONObject jsonObject)
                 {
                     Log.d(LOG_TAG, "Status Code: " + statusCode + "\nMessage: " + jsonObject.toString());
+
+                    if(statusCode == 400)
+                    {
+                    }else{
+
+                    }
                 }
             });
-        }catch(Exception e)
+        }
+        catch(Exception e)
         {
             Log.e(LOG_TAG, "Error: " + e.getMessage());
         }

@@ -41,6 +41,8 @@ public class LoginActivity extends BaseActivity {
             if(authService.authenticate(username, password))
             {
                 startActivity(new Intent(this, MainActivity.class));
+
+                finish();
             }else{
                 textViewLoginErrorMessage.setText("Unable to login user.");
             }
