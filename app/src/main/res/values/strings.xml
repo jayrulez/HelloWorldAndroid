@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Hello World</string>
+    <string name="login_username">Username</string>
+    <string name="login_password">Password</string>
+    <string name="button_login">Login</string>
+    <string name="button_logout">Logout</string>
+    <string name="title_activity_login">Login</string>
+    <string name="title_activity_main">Main</string>
+    <string name="client_id">resource_owner_password_credentials_grant</string>
+    <string name="client_secret">Eevahph6</string>
+</resources>
