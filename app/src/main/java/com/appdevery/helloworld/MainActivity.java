@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 
 import com.appdevery.helloworld.services.AuthService;
@@ -15,12 +16,16 @@ public class MainActivity extends ProtectedActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-    }
 
-    public void logout(View view)
-    {
-        authService.logout();
+        Button buttonLogout = (Button)findViewById(R.id.buttonLogout);
 
-        startActivity(new Intent(this, SplashScreenActivity.class));
+        buttonLogout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                authService.logout();
+                startActivity(new Intent(MainActivity.this, SplashScreenActivity.class));
+                MainActivity.this.finish();
+            }
+        });
     }
 }

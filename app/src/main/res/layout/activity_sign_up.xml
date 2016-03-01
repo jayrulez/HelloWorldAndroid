@@ -8,33 +8,33 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:orientation="horizontal"
-    tools:context="com.appdevery.helloworld.LoginActivity">
+    tools:context="com.appdevery.helloworld.SignUpActivity">
 
     <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/loginUsername"
+        android:id="@+id/signUpUsername"
         android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentStart="true"
-        android:hint="@string/loginUsername"/>
+        android:hint="@string/signUpUsername"/>
 
     <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:inputType="textPassword"
         android:ems="10"
-        android:id="@+id/loginPassword"
-        android:hint="@string/loginPassword"
-        android:layout_below="@+id/loginUsername"
-        android:layout_alignEnd="@+id/loginUsername"
+        android:id="@+id/signUpPassword"
+        android:hint="@string/signUpPassword"
+        android:layout_below="@+id/signUpUsername"
+        android:layout_alignEnd="@+id/signUpUsername"
         android:layout_alignParentStart="true" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/buttonLogin"
-        android:layout_below="@+id/loginPassword"
+        android:text="@string/buttonSignUp"
+        android:layout_below="@+id/signUpPassword"
         android:layout_centerHorizontal="true"
-        android:id="@+id/buttonLogin" />
+        android:id="@+id/buttonSignUp" />
 </RelativeLayout>

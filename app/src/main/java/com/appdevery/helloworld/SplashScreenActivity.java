@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 
 import com.appdevery.helloworld.services.AuthService;
 
@@ -19,11 +21,26 @@ public class SplashScreenActivity extends BaseActivity {
         {
             Log.d(LOG_TAG, "Authenticated");
             startActivity(new Intent(this, MainActivity.class));
-        }else{
-            Log.d(LOG_TAG, "Unauthenticated");
-            startActivity(new Intent(this, LoginActivity.class));
+            finish();
         }
 
-        finish();
+        Button buttonStartLogin = (Button)findViewById(R.id.buttonStartLogin);
+
+        buttonStartLogin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(SplashScreenActivity.this, LoginActivity.class));
+            }
+        });
+
+        Button buttonStartSignUp = (Button)findViewById(R.id.buttonStartSignUp);
+
+        buttonStartSignUp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(SplashScreenActivity.this, SignUpActivity.class));
+            }
+        });
+
     }
 }

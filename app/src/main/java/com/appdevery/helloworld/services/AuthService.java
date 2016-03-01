@@ -83,8 +83,60 @@ public class AuthService extends BaseService {
                 {
                     throw new AuthenticationException("Incorrect username or password.");
                 }else{
-                    throw new AuthenticationException("Unable to log you in at this time. Try again later.");
+                    throw new AuthenticationException("Unable to login at this time. Try again later.");
                 }
+            }
+        }
+        catch(IOException e) {
+            Log.e(LOG_TAG, "Error: " + e.getMessage());
+            throw new AuthenticationException("Internet access is not available.");
+        }catch(JSONException e)
+        {
+            Log.e(LOG_TAG, "Error: " + e.getMessage());
+            throw new AuthenticationException("Unable to login user.");
+        }
+    }
+
+    public boolean register(String username, String password) throws AuthenticationException
+    {
+        try
+        {
+            RequestBody requestBody = new FormBody.Builder()
+                    .add("username", username.toLowerCase())
+                    .add("password", password)
+                    .add("client_id", context.getString(R.string.client_id))
+                    .add("client_secret", context.getString(R.string.client_secret))
+                    .build();
+
+            Response response = ApiClient.post("api/auth/register", requestBody);
+
+            if(response.isSuccessful())
+            {
+                String responseText = response.body().string();
+
+                Log.d(LOG_TAG, "Response text: " + responseText);
+
+                JSONObject jsonData = new JSONObject(responseText);
+
+                try
+                {
+                    String user = jsonData.getString("username");
+                    return true;
+                }catch (JSONException e)
+                {
+                    try
+                    {
+                        String error = jsonData.getString("error");
+                        throw new AuthenticationException(error);
+                    }catch (JSONException ex)
+                    {
+                        throw new AuthenticationException("Unable to parse response from server.");
+                    }
+                }
+            }else{
+                response.body().close();
+                Log.d(LOG_TAG, "Response Code: " + response.code());
+                throw new AuthenticationException("Unable to sign up at this time. Try again later.");
             }
         }
         catch(IOException e) {
