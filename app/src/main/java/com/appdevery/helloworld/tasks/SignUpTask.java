@@ -14,11 +14,11 @@ import com.appdevery.helloworld.utils.TaskListener;
 public class SignUpTask extends AsyncTask<String, String, Response>
 {
     private final TaskListener<Response> taskListener;
-    private Context context;
+    private AuthService authService;
 
-    public SignUpTask(Context context, TaskListener<Response> taskListener)
+    public SignUpTask(AuthService authService, TaskListener<Response> taskListener)
     {
-        this.context = context;
+        this.authService = authService;
         this.taskListener = taskListener;
     }
 
@@ -28,7 +28,6 @@ public class SignUpTask extends AsyncTask<String, String, Response>
         Response response = new Response<Boolean>();
         try
         {
-            AuthService authService = new AuthService(context);
             if(authService.register(params[0], params[1]))
             {
                 response.setResult(true);

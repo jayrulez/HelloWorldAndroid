@@ -37,7 +37,7 @@ public class LoginActivity extends BaseActivity {
                 Log.d(LOG_TAG, "Username: " + username);
                 Log.d(LOG_TAG, "Password: " + password);
 
-                LoginTask loginTask = new LoginTask(LoginActivity.this, new TaskListener<Response>() {
+                LoginTask loginTask = new LoginTask(authService, new TaskListener<Response>() {
                     @Override
                     public void onFinished(Response response) {
                         if(response.isSuccessful())

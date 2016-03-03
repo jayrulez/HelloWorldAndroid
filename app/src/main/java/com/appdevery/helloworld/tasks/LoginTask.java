@@ -14,11 +14,11 @@ import com.appdevery.helloworld.utils.TaskListener;
 public class LoginTask extends AsyncTask<String, String, Response>
 {
     private final TaskListener<Response> taskListener;
-    private Context context;
+    private AuthService authService;
 
-    public LoginTask(Context context, TaskListener<Response> taskListener)
+    public LoginTask(AuthService authService, TaskListener<Response> taskListener)
     {
-        this.context = context;
+        this.authService = authService;
         this.taskListener = taskListener;
     }
 
@@ -28,7 +28,6 @@ public class LoginTask extends AsyncTask<String, String, Response>
         Response response = new Response();
         try
         {
-            AuthService authService = new AuthService(context);
             if(authService.authenticate(params[0], params[1]))
             {
                 response.setResult(true);

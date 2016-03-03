@@ -39,7 +39,7 @@ public class SignUpActivity extends BaseActivity {
                 Log.d(LOG_TAG, "Username: " + username);
                 Log.d(LOG_TAG, "Password: " + password);
 
-                SignUpTask signUpTask = new SignUpTask(SignUpActivity.this, new TaskListener<Response>() {
+                SignUpTask signUpTask = new SignUpTask(authService, new TaskListener<Response>() {
                     @Override
                     public void onFinished(final Response response) {
                         if(response.isSuccessful())
@@ -47,7 +47,7 @@ public class SignUpActivity extends BaseActivity {
                             String username = editTextUsername.getText().toString();
                             String password = editTextPassword.getText().toString();
 
-                            LoginTask loginTask = new LoginTask(SignUpActivity.this, new TaskListener<Response>() {
+                            LoginTask loginTask = new LoginTask(authService, new TaskListener<Response>() {
                                 @Override
                                 public void onFinished(Response response) {
                                     if(response.isSuccessful())
