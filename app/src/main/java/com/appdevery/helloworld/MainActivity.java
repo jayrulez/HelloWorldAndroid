@@ -23,8 +23,11 @@ public class MainActivity extends ProtectedActivity {
             @Override
             public void onClick(View v) {
                 authService.logout();
-                startActivity(new Intent(MainActivity.this, SplashScreenActivity.class));
-                MainActivity.this.finish();
+
+                Intent intent = new Intent(MainActivity.this, SplashScreenActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
+                startActivity(intent);
             }
         });
     }

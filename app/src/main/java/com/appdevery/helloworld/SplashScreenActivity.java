@@ -20,8 +20,11 @@ public class SplashScreenActivity extends BaseActivity {
         if(authService.isAuthenticated())
         {
             Log.d(LOG_TAG, "Authenticated");
-            startActivity(new Intent(this, MainActivity.class));
-            finish();
+
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
+            startActivity(intent);
         }
 
         Button buttonStartLogin = (Button)findViewById(R.id.buttonStartLogin);

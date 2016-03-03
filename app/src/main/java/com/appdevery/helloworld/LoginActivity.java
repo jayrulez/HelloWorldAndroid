@@ -1,24 +1,22 @@
 package com.appdevery.helloworld;
 
-import com.appdevery.helloworld.services.Exception.AuthenticationException;
+import com.appdevery.helloworld.tasks.LoginTask;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.os.AsyncTask;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.appdevery.helloworld.services.AuthService;
+import com.appdevery.helloworld.utils.Response;
+import com.appdevery.helloworld.utils.TaskListener;
 
 public class LoginActivity extends BaseActivity {
     private static final String LOG_TAG = "LoginActivity";
+    private String errorMessage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,50 +37,28 @@ public class LoginActivity extends BaseActivity {
                 Log.d(LOG_TAG, "Username: " + username);
                 Log.d(LOG_TAG, "Password: " + password);
 
-                LoginTask loginTask = new LoginTask();
+                LoginTask loginTask = new LoginTask(LoginActivity.this, new TaskListener<Response>() {
+                    @Override
+                    public void onFinished(Response response) {
+                        if(response.isSuccessful())
+                        {
+                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                            startActivity(intent);
+                        }else{
+                            Context context = getApplicationContext();
+                            String message = response.getFirstError();
+                            if(message == null) {
+                                message = "Unable to log in user.";
+                            }
+                            Toast toast = Toast.makeText(context, message, Toast.LENGTH_SHORT);
+                            toast.show();
+                        }
+                    }
+                });
+
                 loginTask.execute(username, password);
             }
         });
-    }
-
-    private class LoginTask extends AsyncTask<String, String, Boolean>
-    {
-        private String errorMessage = null;
-
-        @Override
-        protected Boolean doInBackground(String... params)
-        {
-            try
-            {
-                return authService.authenticate(params[0], params[1]);
-            }catch(AuthenticationException e)
-            {
-                errorMessage = e.getMessage();
-
-                return false;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(Boolean result) {
-            if(result)
-            {
-                startActivity(new Intent(LoginActivity.this, MainActivity.class));
-
-                LoginActivity.this.finish();
-            }else{
-                Context context = getApplicationContext();
-                Toast toast = Toast.makeText(context, errorMessage != null ? errorMessage : "Unable to login user.", Toast.LENGTH_SHORT);
-                toast.show();
-            }
-        }
-
-        @Override
-        protected void onPreExecute() {
-        }
-
-        @Override
-        protected void onProgressUpdate(String... text) {
-        }
     }
 }
