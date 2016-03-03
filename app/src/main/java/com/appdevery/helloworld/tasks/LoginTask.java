@@ -14,7 +14,6 @@ import com.appdevery.helloworld.utils.TaskListener;
 public class LoginTask extends AsyncTask<String, String, Response>
 {
     private final TaskListener<Response> taskListener;
-    private String errorMessage = null;
     private Context context;
 
     public LoginTask(Context context, TaskListener<Response> taskListener)
@@ -41,8 +40,6 @@ public class LoginTask extends AsyncTask<String, String, Response>
             return response;
         }catch(AuthenticationException e)
         {
-            errorMessage = e.getMessage();
-
             response.addError(e.getMessage());
             response.setResult(false);
             return response;
