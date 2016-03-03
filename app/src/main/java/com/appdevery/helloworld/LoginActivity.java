@@ -16,22 +16,38 @@ import com.appdevery.helloworld.utils.TaskListener;
 
 public class LoginActivity extends BaseActivity {
     private static final String LOG_TAG = "LoginActivity";
-    private String errorMessage;
+    EditText editTextUsername;
+    EditText editTextPassword;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        Bundle extras = getIntent().getExtras();
+
+        String username = extras.getString("username", null);
+        if(username != null)
+        {
+            editTextUsername.setText(username);
+        }
+
+        String password = extras.getString("password", null);
+        if (password != null)
+        {
+            editTextPassword.setText(password);
+        }
+
+
         Button buttonLogin = (Button)findViewById(R.id.buttonLogin);
 
         buttonLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                EditText editTextUsername = (EditText)findViewById(R.id.loginUsername);
+                editTextUsername = (EditText)findViewById(R.id.loginUsername);
                 String username = editTextUsername.getText().toString();
 
-                EditText editTextPassword = (EditText)findViewById(R.id.loginPassword);
+                editTextPassword = (EditText)findViewById(R.id.loginPassword);
                 String password = editTextPassword.getText().toString();
 
                 Log.d(LOG_TAG, "Username: " + username);
