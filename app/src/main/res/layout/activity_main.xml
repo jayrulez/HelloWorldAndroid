@@ -6,9 +6,19 @@
     android:orientation="horizontal"
     tools:context="com.appdevery.helloworld.MainActivity">
 
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/buttonLogout"
-        android:id="@+id/buttonLogout"/>
+    <LinearLayout
+        android:layout_gravity="center_vertical"
+        android:orientation="vertical"
+        android:layout_weight="1"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/buttonLogout"
+            android:id="@+id/buttonLogout"
+            android:layout_gravity="center_vertical|center_horizontal"/>
+    </LinearLayout>
+
 </LinearLayout>

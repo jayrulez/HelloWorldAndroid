@@ -12,4 +12,5 @@
     <string name="signUpUsername">Username</string>
     <string name="signUpPassword">Password</string>
     <string name="buttonSignUp">Sign Up</string>
+    <string name="notMember">Not a member?</string>
 </resources>
