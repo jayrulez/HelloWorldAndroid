@@ -1,6 +1,5 @@
 package com.appdevery.helloworld.services;
-
-import com.appdevery.*;
+import com.appdevery.helloworld.utils.PreferenceKeys;
 import com.appdevery.helloworld.R;
 import com.appdevery.helloworld.services.Exception.AuthenticationException;
 import com.appdevery.helloworld.utils.ApiClient;
@@ -8,12 +7,17 @@ import com.appdevery.helloworld.utils.ApiClient;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.prefs.Preferences;
 
 import okhttp3.FormBody;
@@ -28,11 +32,6 @@ import okio.BufferedSink;
  */
 public class AuthService extends BaseService {
     private static final String LOG_TAG = "AuthService";
-    private static final String AUTH_PREFERENCES = "Auth";
-    private static final String PREFERENCE_KEY_ACCESS_TOKEN = "access_token";
-    private static final String PREFERENCE_KEY_REFRESH_TOKEN = "refresh_token";
-    private static final String PREFERENCE_KEY_IDENTITY = "identity";
-
     public AuthService(Context context)
     {
         super(context);
@@ -40,24 +39,22 @@ public class AuthService extends BaseService {
         Log.d(LOG_TAG, "AuthService created.");
     }
 
-    private SharedPreferences getAuthPreferences()
+    protected SharedPreferences getAuthPreferences()
     {
-        return context.getSharedPreferences(AuthService.AUTH_PREFERENCES, Context.MODE_PRIVATE);
+        return context.getApplicationContext().getSharedPreferences(PreferenceKeys.AUTH_PREFERENCES, Context.MODE_PRIVATE);
     }
 
     public boolean authenticate(String username, String password) throws AuthenticationException
     {
         try
-        {
-            RequestBody requestBody = new FormBody.Builder()
-                    .add("grant_type", "password")
-                    .add("username", username.toLowerCase())
-                    .add("password", password)
-                    .add("client_id", context.getString(R.string.client_id))
-                    .add("client_secret", context.getString(R.string.client_secret))
-                    .build();
+        {   HashMap<String, String> formBody = new HashMap<String, String>();
+            formBody.put("username", username.toLowerCase());
+            formBody.put("password", password);
+            formBody.put("client_id", context.getString(R.string.client_id));
+            formBody.put("client_secret", context.getString(R.string.client_secret));
+            formBody.put("grant_type", "password");
 
-            Response response = ApiClient.post("api/oauth2/token", requestBody);
+            Response response = apiClient.post("oauth2/v2/token", formBody);
 
             if(response.isSuccessful())
             {
@@ -71,14 +68,16 @@ public class AuthService extends BaseService {
                 String refreshToken = jsonData.getString("refresh_token");
 
                 Editor editor = this.getAuthPreferences().edit();
-                editor.putString(AuthService.PREFERENCE_KEY_ACCESS_TOKEN, accessToken);
-                editor.putString(AuthService.PREFERENCE_KEY_REFRESH_TOKEN, refreshToken);
-                editor.putString(AuthService.PREFERENCE_KEY_IDENTITY, username);
+                editor.putString(PreferenceKeys.PREFERENCE_KEY_ACCESS_TOKEN, accessToken);
+                editor.putString(PreferenceKeys.PREFERENCE_KEY_REFRESH_TOKEN, refreshToken);
+                editor.putString(PreferenceKeys.PREFERENCE_KEY_IDENTITY, username);
 
                 return editor.commit();
             }else{
                 response.body().close();
+                
                 Log.d(LOG_TAG, "Response Code: " + response.code());
+
                 if(response.code() == 400)
                 {
                     throw new AuthenticationException("Incorrect username or password.");
@@ -101,14 +100,14 @@ public class AuthService extends BaseService {
     {
         try
         {
-            RequestBody requestBody = new FormBody.Builder()
-                    .add("username", username.toLowerCase())
-                    .add("password", password)
-                    .add("client_id", context.getString(R.string.client_id))
-                    .add("client_secret", context.getString(R.string.client_secret))
-                    .build();
+            HashMap<String, String> formBody = new HashMap<String, String>();
+            formBody.put("username", username.toLowerCase());
+            formBody.put("password", password);
+            formBody.put("client_id", context.getString(R.string.client_id));
+            formBody.put("client_secret", context.getString(R.string.client_secret));
+            formBody.put("grant_type", "client_credentials");
 
-            Response response = ApiClient.post("api/auth/register", requestBody);
+            Response response = apiClient.post("api/register", formBody);
 
             if(response.isSuccessful())
             {
@@ -162,7 +161,7 @@ public class AuthService extends BaseService {
 
     public boolean isAuthenticated()
     {
-        String accessToken = this.getAuthPreferences().getString(AuthService.PREFERENCE_KEY_ACCESS_TOKEN, null);
+        String accessToken = this.getAuthPreferences().getString(PreferenceKeys.PREFERENCE_KEY_ACCESS_TOKEN, null);
 
         if(accessToken != null)
         {
