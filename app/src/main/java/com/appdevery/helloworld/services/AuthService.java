@@ -46,18 +46,18 @@ public class AuthService extends BaseService {
 
     public Response getToken(HashMap<String, String> credentials) throws IOException
     {
-        return apiClient.post("public/login", credentials);
+        return apiClient.post(ApiClient.ENDPOINT_TOKEN, credentials);
     }
 
     public boolean authenticate(String username, String password) throws AuthenticationException
     {
         try
         {   HashMap<String, String> formBody = new HashMap<String, String>();
-            formBody.put("username", username.toLowerCase());
-            formBody.put("password", password);
-            formBody.put("client_id", context.getString(R.string.client_id));
-            formBody.put("client_secret", context.getString(R.string.client_secret));
-            formBody.put("grant_type", "password");
+            formBody.put(ApiClient.PARAM_USERNAME, username.toLowerCase());
+            formBody.put(ApiClient.PARAM_PASSWORD, password);
+            formBody.put(ApiClient.PARAM_CLIENT_ID, context.getString(R.string.client_id));
+            formBody.put(ApiClient.PARAM_CLIENT_SECRET, context.getString(R.string.client_secret));
+            formBody.put(ApiClient.PARAM_GRANT_TYPE, "password");
 
             Response response = getToken(formBody);
 

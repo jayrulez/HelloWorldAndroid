@@ -1,7 +1,7 @@
 package com.appdevery.helloworld.activities;
 
 import com.appdevery.helloworld.R;
-import com.appdevery.helloworld.tasks.LoginTask;
+import com.appdevery.helloworld.tasks.UserTasks;
 
 import android.content.Context;
 import android.content.Intent;
@@ -55,7 +55,7 @@ public class LoginActivity extends BaseActivity {
                 Log.d(LOG_TAG, "Username: " + username);
                 Log.d(LOG_TAG, "Password: " + password);
 
-                LoginTask loginTask = new LoginTask(authService, new TaskListener<ActionResponse>() {
+                UserTasks.Login loginTask = new UserTasks.Login(authService, new TaskListener<ActionResponse>() {
                     @Override
                     public void onFinished(ActionResponse response) {
                         if(response.isSuccessful())

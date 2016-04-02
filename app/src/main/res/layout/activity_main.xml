@@ -16,6 +16,13 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="@string/buttonMe"
+            android:id="@+id/buttonMe"
+            android:layout_gravity="center_vertical|center_horizontal"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="@string/buttonLogout"
             android:id="@+id/buttonLogout"
             android:layout_gravity="center_vertical|center_horizontal"/>

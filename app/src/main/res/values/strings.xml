@@ -6,6 +6,7 @@
     <string name="loginPassword">Password</string>
     <string name="buttonLogin">Login</string>
     <string name="buttonLogout">Logout</string>
+    <string name="buttonMe">Me</string>
     <string name="title_activity_login">Login</string>
     <string name="title_activity_main">Main</string>
     <string name="title_activity_sign_up">SignUpActivity</string>

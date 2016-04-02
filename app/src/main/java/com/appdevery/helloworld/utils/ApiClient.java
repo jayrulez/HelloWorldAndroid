@@ -7,6 +7,8 @@ import android.util.Log;
 import com.appdevery.helloworld.R;
 import com.appdevery.helloworld.services.BaseService;
 
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -29,10 +31,24 @@ public class ApiClient {
     private Context context;
     private OkHttpClient httpClient;
 
+    public static final String PARAM_CLIENT_ID = "client_id";
+    public static final String PARAM_CLIENT_SECRET = "client_secret";
+    public static final String PARAM_GRANT_TYPE = "grant_type";
+    public static final String PARAM_REFRESH_TOKEN = "refresh_token";
+    public static final String PARAM_USERNAME = "username";
+    public static final String PARAM_PASSWORD = "password";
+
+    public static final String ENDPOINT_TOKEN = "public/login";
+
     public ApiClient(Context context)
     {
         this.context = context;
         httpClient = createHttpClient();
+    }
+
+    private OkHttpClient getInternalClient()
+    {
+        return new OkHttpClient.Builder().build();
     }
 
     private OkHttpClient createHttpClient()
@@ -48,35 +64,101 @@ public class ApiClient {
                         {
                             Log.d(LOG_TAG, "Authorization header present.");
                             return chain.proceed(originalRequest);
-                        }
+                        }else{
+                            Log.d(LOG_TAG, "Authorization header is not present.");
 
-                        Response response = chain.proceed(originalRequest);
+                            SharedPreferences authPreferences = context.getApplicationContext().getSharedPreferences(PreferenceKeys.AUTH_PREFERENCES, Context.MODE_PRIVATE);
 
-                        if(response.code() == 400)
-                        {
-                            Log.d(LOG_TAG, "Unauthorized.");
+                            if(authPreferences != null) {
+                                String accessToken = authPreferences.getString(PreferenceKeys.PREFERENCE_KEY_ACCESS_TOKEN, null);
+                                String refreshToken = authPreferences.getString(PreferenceKeys.PREFERENCE_KEY_REFRESH_TOKEN, null);
 
-                            SharedPreferences preferences = context.getApplicationContext().getSharedPreferences(PreferenceKeys.AUTH_PREFERENCES, Context.MODE_PRIVATE);
+                                if (accessToken != null && !accessToken.isEmpty()) {
 
-                            if(preferences != null) {
-                                String bearerToken = preferences.getString(PreferenceKeys.PREFERENCE_KEY_ACCESS_TOKEN, null);
-
-                                if (bearerToken != null && !bearerToken.isEmpty()) {
-
-                                    Log.d(LOG_TAG, "Adding authorization header: Authorization Bearer " + bearerToken);
+                                    Log.d(LOG_TAG, "Adding authorization header: Authorization Bearer " + accessToken);
 
                                     Request modifiedRequest = originalRequest.newBuilder()
-                                            .addHeader(KEY_AUTHORIZATION, "Bearer " + bearerToken)
+                                            .addHeader(KEY_AUTHORIZATION, "Bearer " + accessToken)
                                             .build();
 
-                                    response = chain.proceed(modifiedRequest);
+                                    Response response = chain.proceed(modifiedRequest);
+
+                                    Log.d(LOG_TAG, "Response code: " + response.code());
+
+                                    if(response.code() == 401)
+                                    {
+                                        Log.d(LOG_TAG, "Unauthorized, token may have expired.");
+
+                                        if(refreshToken != null && !refreshToken.isEmpty())
+                                        {
+                                            //refresh the token and try again
+                                            FormBody.Builder builder = new FormBody.Builder();
+
+                                            builder.add(ApiClient.PARAM_CLIENT_ID, context.getString(R.string.client_id));
+                                            builder.add(ApiClient.PARAM_CLIENT_SECRET, context.getString(R.string.client_secret));
+                                            builder.add(ApiClient.PARAM_REFRESH_TOKEN, refreshToken);
+                                            builder.add(ApiClient.PARAM_GRANT_TYPE, "refresh_token");
+
+                                            RequestBody requestBody = builder.build();
+
+                                            Request refreshTokenRequest = new Request.Builder()
+                                                    .url(getAbsoluteUrl(ApiClient.ENDPOINT_TOKEN))
+                                                    .post(requestBody)
+                                                    .build();
+
+                                            try {
+                                                Log.d(LOG_TAG, "Refreshing token.");
+
+                                                Response refreshTokenResponse = getInternalClient().newCall(refreshTokenRequest).execute();
+
+                                                if(refreshTokenResponse.isSuccessful())
+                                                {
+                                                    String responseText = refreshTokenResponse.body().string();
+                                                    JSONObject jsonData = new JSONObject(responseText);
+
+                                                    jsonData = jsonData.getJSONObject("data");
+
+                                                    accessToken = jsonData.getString("access_token");
+                                                    refreshToken = jsonData.getString("refresh_token");
+
+                                                    SharedPreferences.Editor editor = authPreferences.edit();
+
+                                                    editor.putString(PreferenceKeys.PREFERENCE_KEY_ACCESS_TOKEN, accessToken);
+                                                    editor.putString(PreferenceKeys.PREFERENCE_KEY_REFRESH_TOKEN, refreshToken);
+
+                                                    editor.commit();
+
+                                                    modifiedRequest = modifiedRequest.newBuilder()
+                                                            .addHeader(KEY_AUTHORIZATION, "Bearer " + accessToken)
+                                                            .build();
+
+                                                    Log.d(LOG_TAG, "New access token: " + accessToken);
+                                                    return chain.proceed(modifiedRequest);
+                                                }else{
+                                                    Log.d(LOG_TAG, "Response body: " + refreshTokenResponse.body().string());
+                                                    Log.d(LOG_TAG, "Request to refresh token failed.");
+                                                    Log.d(LOG_TAG, "Response code: " + refreshTokenResponse.code());
+                                                }
+                                            }catch(Exception e)
+                                            {
+                                                Log.d(LOG_TAG, "Request to refresh token failed with exception: " + e.getMessage());
+                                            }
+
+                                        }else{
+                                            Log.d(LOG_TAG, "No refresh token was found.");
+                                        }
+                                    }else{
+                                        return response;
+                                    }
                                 }else{
-                                    Log.d(LOG_TAG, "No access token was found..");
+                                    Log.d(LOG_TAG, "No access token was found.");
                                 }
                             }
-                        }
 
-                        return response;
+                            Log.d(LOG_TAG, "Proceeding without authorization.");
+
+                            return chain.proceed(originalRequest);
+                        }
                     }
                 })
                 .build();

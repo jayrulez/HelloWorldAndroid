@@ -10,8 +10,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.appdevery.helloworld.R;
-import com.appdevery.helloworld.tasks.LoginTask;
-import com.appdevery.helloworld.tasks.SignUpTask;
+import com.appdevery.helloworld.tasks.UserTasks;
 import com.appdevery.helloworld.utils.ActionResponse;
 import com.appdevery.helloworld.utils.TaskListener;
 
@@ -50,7 +49,7 @@ public class SignUpActivity extends BaseActivity {
                 Log.d(LOG_TAG, "EmailAddress: " + emailAddress);
                 Log.d(LOG_TAG, "Password: " + password);
 
-                SignUpTask signUpTask = new SignUpTask(authService, new TaskListener<ActionResponse>() {
+                UserTasks.SignUp signUpTask = new UserTasks.SignUp(authService, new TaskListener<ActionResponse>() {
                     @Override
                     public void onFinished(final ActionResponse response) {
                         if(response.isSuccessful())
@@ -58,7 +57,7 @@ public class SignUpActivity extends BaseActivity {
                             String username = editTextEmailAddress.getText().toString();
                             String password = editTextPassword.getText().toString();
 
-                            LoginTask loginTask = new LoginTask(authService, new TaskListener<ActionResponse>() {
+                            UserTasks.Login loginTask = new UserTasks.Login(authService, new TaskListener<ActionResponse>() {
                                 @Override
                                 public void onFinished(ActionResponse response) {
                                     if(response.isSuccessful())
