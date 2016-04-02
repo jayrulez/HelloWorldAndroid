@@ -1,8 +1,15 @@
 package com.appdevery.helloworld.services;
+import com.appdevery.helloworld.models.ApiResponseModel;
+import com.appdevery.helloworld.models.ErrorModel;
+import com.appdevery.helloworld.models.TokenModel;
+import com.appdevery.helloworld.models.UserModel;
+import com.appdevery.helloworld.utils.GsonHelper;
 import com.appdevery.helloworld.utils.PreferenceKeys;
 import com.appdevery.helloworld.R;
 import com.appdevery.helloworld.services.Exception.AuthenticationException;
 import com.appdevery.helloworld.utils.ApiClient;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -60,31 +67,32 @@ public class AuthService extends BaseService {
             formBody.put(ApiClient.PARAM_GRANT_TYPE, "password");
 
             Response response = getToken(formBody);
+            String responseText = response.body().string();
 
+            Log.d(LOG_TAG, "Response Text: " + responseText);
             Log.d(LOG_TAG, "Response Code: " + response.code());
             Log.d(LOG_TAG, "Request Url: " + response.request().url());
+            Gson gson = new Gson();
 
             if(response.isSuccessful())
             {
-                String responseText = response.body().string();
+                ApiResponseModel<TokenModel> apiResponse = gson.fromJson(responseText, new TypeToken<ApiResponseModel<TokenModel>>() {} .getType());
 
-                Log.d(LOG_TAG, "Response text: " + responseText);
-
-                JSONObject jsonData = new JSONObject(responseText);
-
-                jsonData = jsonData.getJSONObject("data");
-
-                String accessToken = jsonData.getString("access_token");
-                String refreshToken = jsonData.getString("refresh_token");
+                String accessToken = apiResponse.getData().getAccessToken();
+                String refreshToken = apiResponse.getData().getRefreshToken();
 
                 Editor editor = this.getAuthPreferences().edit();
                 editor.putString(PreferenceKeys.PREFERENCE_KEY_ACCESS_TOKEN, accessToken);
                 editor.putString(PreferenceKeys.PREFERENCE_KEY_REFRESH_TOKEN, refreshToken);
-                editor.putString(PreferenceKeys.PREFERENCE_KEY_IDENTITY, username);
 
                 return editor.commit();
             }else{
+                ApiResponseModel<ErrorModel> apiResponse = gson.fromJson(responseText, new TypeToken<ApiResponseModel<ErrorModel>>() {} .getType());
+
+                Log.d(LOG_TAG, apiResponse.getData().getErrorDescription());
+
                 response.body().close();
+
                 if(response.code() == 400)
                 {
                     throw new AuthenticationException("Incorrect username or password.");
@@ -96,10 +104,6 @@ public class AuthService extends BaseService {
         catch(IOException e) {
             Log.e(LOG_TAG, "Error: " + e.getMessage());
             throw new AuthenticationException("Internet access is not available.");
-        }catch(JSONException e)
-        {
-            Log.e(LOG_TAG, "Error: " + e.getMessage());
-            throw new AuthenticationException("Unable to login user.");
         }
     }
 
@@ -119,54 +123,42 @@ public class AuthService extends BaseService {
             formBody.put("grant_type", "client_credentials");
 
             Response response = apiClient.post("public/register", formBody);
+            String responseText = response.body().string();
+
+            Log.d(LOG_TAG, "Request Url: " + response.request().url());
+            Log.d(LOG_TAG, "Response Text: " + responseText);
+            Log.d(LOG_TAG, "Response Code: " + response.code());
+
+            Gson gson = new Gson();
 
             if(response.isSuccessful())
             {
-                String responseText = response.body().string();
+                ApiResponseModel<UserModel> apiResponse = gson.fromJson(responseText, new TypeToken<ApiResponseModel<UserModel>>() {} .getType());
 
-                Log.d(LOG_TAG, "Response text: " + responseText);
-
-                JSONObject jsonData = new JSONObject(responseText);
-                Boolean success = jsonData.getBoolean("success");
-
-                if(success)
+                if(apiResponse.getSuccess())
                 {
-                    jsonData = jsonData.getJSONObject("data");
+                    Log.d(LOG_TAG, "Registration was successful.");
 
-                    try
-                    {
-                        String user = jsonData.getString("username");
-                        return true;
-                    }catch (JSONException e)
-                    {
-                        throw new AuthenticationException("Unable to parse response from server.");
-                    }
+                    return true;
                 }else{
-                    jsonData = jsonData.getJSONObject("data");
+                    ApiResponseModel<ErrorModel> errorResponse = gson.fromJson(responseText, new TypeToken<ApiResponseModel<ErrorModel>>() {} .getType());
 
-                    try
-                    {
-                        String error = jsonData.getString("error_description");
-                        throw new AuthenticationException(error);
-                    }catch (JSONException e)
-                    {
-                        throw new AuthenticationException("Unable to parse response from server.");
-                    }
+                    Log.d(LOG_TAG, errorResponse.getData().getErrorDescription());
+
+                    throw new AuthenticationException(errorResponse.getData().getErrorDescription());
                 }
             }else{
+                ApiResponseModel<ErrorModel> errorResponse = gson.fromJson(responseText, new TypeToken<ApiResponseModel<ErrorModel>>() {} .getType());
                 response.body().close();
-                Log.d(LOG_TAG, "Response Code: " + response.code());
-                Log.d(LOG_TAG, "Request Url: " + response.request().url());
+
+                Log.d(LOG_TAG, errorResponse.getData().getErrorDescription());
+
                 throw new AuthenticationException("Unable to sign up at this time. Try again later.");
             }
         }
         catch(IOException e) {
             Log.e(LOG_TAG, "Error: " + e.getMessage());
             throw new AuthenticationException("Internet access is not available.");
-        }catch(JSONException e)
-        {
-            Log.e(LOG_TAG, "Error: " + e.getMessage());
-            throw new AuthenticationException("Unable to login user.");
         }
     }
 
