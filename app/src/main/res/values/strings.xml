@@ -1,4 +1,6 @@
 <resources>
+    <string name="client_id">1_4dr0u57vj0u84wg8wckc84w44co0gck0000wg8cocwk088s4gk</string>
+    <string name="client_secret">4gpkvrmwlpuswgoc4cw88kwocg4go0o8wcoo0ogs4ko8k0k4gc</string>
     <string name="app_name">Hello World</string>
     <string name="loginUsername">Username</string>
     <string name="loginPassword">Password</string>
@@ -6,11 +8,14 @@
     <string name="buttonLogout">Logout</string>
     <string name="title_activity_login">Login</string>
     <string name="title_activity_main">Main</string>
-    <string name="client_id">resource_owner_password_credentials_grant</string>
-    <string name="client_secret">Eevahph6</string>
     <string name="title_activity_sign_up">SignUpActivity</string>
-    <string name="signUpUsername">Username</string>
+    <string name="signUpFirstName">First Name</string>
+    <string name="signUpLastName">Last Name</string>
+    <string name="signUpEmailAddress">Email Address</string>
+    <string name="signUpCountryCode">Country Code</string>
+    <string name="signUpMobileNumber">Mobile Number</string>
     <string name="signUpPassword">Password</string>
     <string name="buttonSignUp">Sign Up</string>
     <string name="notMember">Not a member?</string>
+    <string name="title_activity_launcher">LauncherActivity</string>
 </resources>

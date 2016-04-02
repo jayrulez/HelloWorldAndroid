@@ -14,6 +14,6 @@ public abstract class BaseService {
     public BaseService(Context context)
     {
         this.context = context;
-        apiClient = new ApiClient(context);
+        apiClient = new ApiClient(this.context);
     }
 }

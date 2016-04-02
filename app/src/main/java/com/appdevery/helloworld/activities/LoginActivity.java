@@ -1,5 +1,6 @@
-package com.appdevery.helloworld;
+package com.appdevery.helloworld.activities;
 
+import com.appdevery.helloworld.R;
 import com.appdevery.helloworld.tasks.LoginTask;
 
 import android.content.Context;
@@ -11,7 +12,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.appdevery.helloworld.utils.Response;
+import com.appdevery.helloworld.utils.ActionResponse;
 import com.appdevery.helloworld.utils.TaskListener;
 
 public class LoginActivity extends BaseActivity {
@@ -24,38 +25,39 @@ public class LoginActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        editTextUsername = (EditText)findViewById(R.id.loginUsername);
+        editTextPassword = (EditText)findViewById(R.id.loginPassword);
+
         Bundle extras = getIntent().getExtras();
-
-        String username = extras.getString("username", null);
-        if(username != null)
+        if(extras != null)
         {
-            editTextUsername.setText(username);
-        }
+            String username = extras.getString("username", null);
+            if(username != null)
+            {
+                editTextUsername.setText(username);
+            }
 
-        String password = extras.getString("password", null);
-        if (password != null)
-        {
-            editTextPassword.setText(password);
+            String password = extras.getString("password", null);
+            if (password != null)
+            {
+                editTextPassword.setText(password);
+            }
         }
-
 
         Button buttonLogin = (Button)findViewById(R.id.buttonLogin);
 
         buttonLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                editTextUsername = (EditText)findViewById(R.id.loginUsername);
                 String username = editTextUsername.getText().toString();
-
-                editTextPassword = (EditText)findViewById(R.id.loginPassword);
                 String password = editTextPassword.getText().toString();
 
                 Log.d(LOG_TAG, "Username: " + username);
                 Log.d(LOG_TAG, "Password: " + password);
 
-                LoginTask loginTask = new LoginTask(authService, new TaskListener<Response>() {
+                LoginTask loginTask = new LoginTask(authService, new TaskListener<ActionResponse>() {
                     @Override
-                    public void onFinished(Response response) {
+                    public void onFinished(ActionResponse response) {
                         if(response.isSuccessful())
                         {
                             Intent intent = new Intent(LoginActivity.this, MainActivity.class);

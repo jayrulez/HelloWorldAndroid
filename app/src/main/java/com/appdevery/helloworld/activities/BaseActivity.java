@@ -1,4 +1,4 @@
-package com.appdevery.helloworld;
+package com.appdevery.helloworld.activities;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;

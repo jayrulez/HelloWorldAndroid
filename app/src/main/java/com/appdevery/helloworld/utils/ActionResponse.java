@@ -12,11 +12,11 @@ import java.util.ListIterator;
 /**
  * Created by robert on 3/3/2016.
  */
-public class Response<T> {
+public class ActionResponse<T> {
     private T result;
     private ArrayList<Error> errors;
 
-    public Response()
+    public ActionResponse()
     {
         errors = new ArrayList<Error>();
     }

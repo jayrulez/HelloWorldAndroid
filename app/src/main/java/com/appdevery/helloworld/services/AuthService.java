@@ -44,6 +44,11 @@ public class AuthService extends BaseService {
         return context.getApplicationContext().getSharedPreferences(PreferenceKeys.AUTH_PREFERENCES, Context.MODE_PRIVATE);
     }
 
+    public Response getToken(HashMap<String, String> credentials) throws IOException
+    {
+        return apiClient.post("public/login", credentials);
+    }
+
     public boolean authenticate(String username, String password) throws AuthenticationException
     {
         try
@@ -54,7 +59,10 @@ public class AuthService extends BaseService {
             formBody.put("client_secret", context.getString(R.string.client_secret));
             formBody.put("grant_type", "password");
 
-            Response response = apiClient.post("oauth2/v2/token", formBody);
+            Response response = getToken(formBody);
+
+            Log.d(LOG_TAG, "Response Code: " + response.code());
+            Log.d(LOG_TAG, "Request Url: " + response.request().url());
 
             if(response.isSuccessful())
             {
@@ -63,6 +71,8 @@ public class AuthService extends BaseService {
                 Log.d(LOG_TAG, "Response text: " + responseText);
 
                 JSONObject jsonData = new JSONObject(responseText);
+
+                jsonData = jsonData.getJSONObject("data");
 
                 String accessToken = jsonData.getString("access_token");
                 String refreshToken = jsonData.getString("refresh_token");
@@ -75,9 +85,6 @@ public class AuthService extends BaseService {
                 return editor.commit();
             }else{
                 response.body().close();
-                
-                Log.d(LOG_TAG, "Response Code: " + response.code());
-
                 if(response.code() == 400)
                 {
                     throw new AuthenticationException("Incorrect username or password.");
@@ -96,18 +103,22 @@ public class AuthService extends BaseService {
         }
     }
 
-    public boolean register(String username, String password) throws AuthenticationException
+    public boolean register(String firstName, String lastName, String emailAddress, String countryCode, String mobileNumber, String password) throws AuthenticationException
     {
         try
         {
             HashMap<String, String> formBody = new HashMap<String, String>();
-            formBody.put("username", username.toLowerCase());
+            formBody.put("first_name", firstName);
+            formBody.put("last_name", lastName);
+            formBody.put("email_address", emailAddress);
+            formBody.put("country_code", countryCode);
+            formBody.put("mobile_number", mobileNumber);
             formBody.put("password", password);
             formBody.put("client_id", context.getString(R.string.client_id));
             formBody.put("client_secret", context.getString(R.string.client_secret));
             formBody.put("grant_type", "client_credentials");
 
-            Response response = apiClient.post("api/register", formBody);
+            Response response = apiClient.post("public/register", formBody);
 
             if(response.isSuccessful())
             {
@@ -116,18 +127,28 @@ public class AuthService extends BaseService {
                 Log.d(LOG_TAG, "Response text: " + responseText);
 
                 JSONObject jsonData = new JSONObject(responseText);
+                Boolean success = jsonData.getBoolean("success");
 
-                try
+                if(success)
                 {
-                    String user = jsonData.getString("username");
-                    return true;
-                }catch (JSONException e)
-                {
+                    jsonData = jsonData.getJSONObject("data");
+
                     try
                     {
-                        String error = jsonData.getString("error");
+                        String user = jsonData.getString("username");
+                        return true;
+                    }catch (JSONException e)
+                    {
+                        throw new AuthenticationException("Unable to parse response from server.");
+                    }
+                }else{
+                    jsonData = jsonData.getJSONObject("data");
+
+                    try
+                    {
+                        String error = jsonData.getString("error_description");
                         throw new AuthenticationException(error);
-                    }catch (JSONException ex)
+                    }catch (JSONException e)
                     {
                         throw new AuthenticationException("Unable to parse response from server.");
                     }
@@ -135,6 +156,7 @@ public class AuthService extends BaseService {
             }else{
                 response.body().close();
                 Log.d(LOG_TAG, "Response Code: " + response.code());
+                Log.d(LOG_TAG, "Request Url: " + response.request().url());
                 throw new AuthenticationException("Unable to sign up at this time. Try again later.");
             }
         }

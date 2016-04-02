@@ -25,7 +25,7 @@ import okhttp3.Response;
 public class ApiClient {
     private static final String KEY_AUTHORIZATION = "Authorization";
     private static final String LOG_TAG = "ApiClient";
-    private static final String BASE_URL = "http://api.appdevery.com/";
+    private static final String BASE_URL = "http://api.appdevery.com/app_dev.php/v1/";
     private Context context;
     private OkHttpClient httpClient;
 
@@ -37,32 +37,49 @@ public class ApiClient {
 
     private OkHttpClient createHttpClient()
     {
-        OkHttpClient client = new OkHttpClient();
+        OkHttpClient client = new OkHttpClient.Builder()
+                .addInterceptor(new Interceptor() {
+                    @Override
+                    public Response intercept(Chain chain) throws IOException {
+                        Request originalRequest    = chain.request();
+                        String authorizationHeader = originalRequest.headers().get(KEY_AUTHORIZATION);
 
-        client.networkInterceptors().add(new Interceptor() {
-            @Override
-            public Response intercept(Chain chain) throws IOException {
-                Request originalRequest = chain.request();
+                        if(authorizationHeader != null && !authorizationHeader.isEmpty())
+                        {
+                            Log.d(LOG_TAG, "Authorization header present.");
+                            return chain.proceed(originalRequest);
+                        }
 
-                SharedPreferences preferences = context.getApplicationContext().getSharedPreferences(PreferenceKeys.AUTH_PREFERENCES, Context.MODE_PRIVATE);
+                        Response response = chain.proceed(originalRequest);
 
-                if(preferences != null)
-                {
-                    String bearerToken = preferences.getString(PreferenceKeys.PREFERENCE_KEY_ACCESS_TOKEN, null);
+                        if(response.code() == 400)
+                        {
+                            Log.d(LOG_TAG, "Unauthorized.");
 
-                    if(bearerToken != null && !bearerToken.isEmpty())
-                    {
-                        Request modifiedRequest = originalRequest.newBuilder()
-                                .addHeader(KEY_AUTHORIZATION, "Bearer " + bearerToken)
-                                .build();
+                            SharedPreferences preferences = context.getApplicationContext().getSharedPreferences(PreferenceKeys.AUTH_PREFERENCES, Context.MODE_PRIVATE);
 
-                        return chain.proceed(modifiedRequest);
+                            if(preferences != null) {
+                                String bearerToken = preferences.getString(PreferenceKeys.PREFERENCE_KEY_ACCESS_TOKEN, null);
+
+                                if (bearerToken != null && !bearerToken.isEmpty()) {
+
+                                    Log.d(LOG_TAG, "Adding authorization header: Authorization Bearer " + bearerToken);
+
+                                    Request modifiedRequest = originalRequest.newBuilder()
+                                            .addHeader(KEY_AUTHORIZATION, "Bearer " + bearerToken)
+                                            .build();
+
+                                    response = chain.proceed(modifiedRequest);
+                                }else{
+                                    Log.d(LOG_TAG, "No access token was found..");
+                                }
+                            }
+                        }
+
+                        return response;
                     }
-                }
-
-                return chain.proceed(originalRequest);
-            }
-        });
+                })
+                .build();
 
         return client;
     }

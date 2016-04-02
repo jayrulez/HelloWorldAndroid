@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<app-settings>
+
+    <setting type="client_id">
+        <des>Client id</des>
+        <value>1_4dr0u57vj0u84wg8wckc84w44co0gck0000wg8cocwk088s4gk</value>
+    </setting>
+
+    <setting type="client_secret">
+        <des>Client secret</des>
+        <value>4gpkvrmwlpuswgoc4cw88kwocg4go0o8wcoo0ogs4ko8k0k4gc</value>
+    </setting>
+
+</app-settings>

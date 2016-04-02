@@ -9,7 +9,7 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     android:orientation="horizontal"
     android:background="#A9F5F2"
-    tools:context="com.appdevery.helloworld.SplashScreenActivity">
+    tools:context=".activities.SplashActivity">
     <LinearLayout
         android:layout_gravity="center_vertical"
         android:orientation="vertical"

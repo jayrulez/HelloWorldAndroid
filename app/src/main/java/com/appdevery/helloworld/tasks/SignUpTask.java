@@ -5,30 +5,30 @@ import android.os.AsyncTask;
 
 import com.appdevery.helloworld.services.AuthService;
 import com.appdevery.helloworld.services.Exception.AuthenticationException;
-import com.appdevery.helloworld.utils.Response;
+import com.appdevery.helloworld.utils.ActionResponse;
 import com.appdevery.helloworld.utils.TaskListener;
 
 /**
  * Created by robert on 3/3/2016.
  */
-public class SignUpTask extends AsyncTask<String, String, Response>
+public class SignUpTask extends AsyncTask<String, String, ActionResponse>
 {
-    private final TaskListener<Response> taskListener;
+    private final TaskListener<ActionResponse> taskListener;
     private AuthService authService;
 
-    public SignUpTask(AuthService authService, TaskListener<Response> taskListener)
+    public SignUpTask(AuthService authService, TaskListener<ActionResponse> taskListener)
     {
         this.authService = authService;
         this.taskListener = taskListener;
     }
 
     @Override
-    protected Response doInBackground(String... params)
+    protected ActionResponse doInBackground(String... params)
     {
-        Response response = new Response<Boolean>();
+        ActionResponse response = new ActionResponse<Boolean>();
         try
         {
-            if(authService.register(params[0], params[1]))
+            if(authService.register(params[0], params[1], params[2], params[3], params[4], params[5]))
             {
                 response.setResult(true);
             }else{
@@ -45,7 +45,7 @@ public class SignUpTask extends AsyncTask<String, String, Response>
     }
 
     @Override
-    protected void onPostExecute(Response response) {
+    protected void onPostExecute(ActionResponse response) {
         super.onPostExecute(response);
 
         if(taskListener != null)

@@ -1,31 +1,32 @@
 package com.appdevery.helloworld.tasks;
 
+import android.app.Notification;
 import android.content.Context;
 import android.os.AsyncTask;
 
 import com.appdevery.helloworld.services.AuthService;
 import com.appdevery.helloworld.services.Exception.AuthenticationException;
-import com.appdevery.helloworld.utils.Response;
+import com.appdevery.helloworld.utils.ActionResponse;
 import com.appdevery.helloworld.utils.TaskListener;
 
 /**
  * Created by robert on 3/3/2016.
  */
-public class LoginTask extends AsyncTask<String, String, Response>
+public class LoginTask extends AsyncTask<String, String, ActionResponse>
 {
-    private final TaskListener<Response> taskListener;
+    private final TaskListener<ActionResponse> taskListener;
     private AuthService authService;
 
-    public LoginTask(AuthService authService, TaskListener<Response> taskListener)
+    public LoginTask(AuthService authService, TaskListener<ActionResponse> taskListener)
     {
         this.authService = authService;
         this.taskListener = taskListener;
     }
 
     @Override
-    protected Response doInBackground(String... params)
+    protected ActionResponse doInBackground(String... params)
     {
-        Response response = new Response();
+        ActionResponse response = new ActionResponse();
         try
         {
             if(authService.authenticate(params[0], params[1]))
@@ -46,7 +47,7 @@ public class LoginTask extends AsyncTask<String, String, Response>
     }
 
     @Override
-    protected void onPostExecute(Response response) {
+    protected void onPostExecute(ActionResponse response) {
         super.onPostExecute(response);
 
         if(taskListener != null)

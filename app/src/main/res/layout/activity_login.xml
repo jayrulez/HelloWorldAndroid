@@ -8,7 +8,7 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:orientation="horizontal"
-    tools:context="com.appdevery.helloworld.LoginActivity">
+    tools:context=".activities.LoginActivity">
 
     <LinearLayout
         android:layout_gravity="center_vertical"
@@ -20,6 +20,7 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:id="@+id/loginUsername"
+            android:inputType="text"
             android:hint="@string/loginUsername"
             android:layout_gravity="center_vertical|center_horizontal"/>
 
@@ -27,7 +28,6 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:inputType="textPassword"
-            android:ems="10"
             android:id="@+id/loginPassword"
             android:hint="@string/loginPassword"
             android:layout_gravity="center_vertical|center_horizontal"
