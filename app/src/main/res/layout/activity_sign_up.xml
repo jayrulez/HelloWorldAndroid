@@ -60,6 +60,7 @@
             android:id="@+id/signUpPassword"
             android:inputType="textPassword"
             android:hint="@string/signUpPassword"
+            android:imeOptions="actionDone"
             android:layout_gravity="center_vertical|center_horizontal"/>
 
         <Button

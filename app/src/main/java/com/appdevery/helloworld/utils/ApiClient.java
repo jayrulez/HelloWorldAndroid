@@ -5,7 +5,11 @@ import android.content.SharedPreferences;
 import android.util.Log;
 
 import com.appdevery.helloworld.R;
+import com.appdevery.helloworld.models.ApiResponseModel;
+import com.appdevery.helloworld.models.TokenModel;
 import com.appdevery.helloworld.services.BaseService;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONObject;
 
@@ -111,15 +115,16 @@ public class ApiClient {
 
                                                 Response refreshTokenResponse = getInternalClient().newCall(refreshTokenRequest).execute();
 
+                                                Gson gson = new Gson();
+
                                                 if(refreshTokenResponse.isSuccessful())
                                                 {
                                                     String responseText = refreshTokenResponse.body().string();
-                                                    JSONObject jsonData = new JSONObject(responseText);
 
-                                                    jsonData = jsonData.getJSONObject("data");
+                                                    ApiResponseModel<TokenModel> apiResponse = gson.fromJson(responseText, new TypeToken<ApiResponseModel<TokenModel>>() {} .getType());
 
-                                                    accessToken = jsonData.getString("access_token");
-                                                    refreshToken = jsonData.getString("refresh_token");
+                                                    accessToken = apiResponse.getData().getAccessToken();
+                                                    refreshToken = apiResponse.getData().getRefreshToken();
 
                                                     SharedPreferences.Editor editor = authPreferences.edit();
 

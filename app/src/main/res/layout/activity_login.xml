@@ -30,6 +30,7 @@
             android:inputType="textPassword"
             android:id="@+id/loginPassword"
             android:hint="@string/loginPassword"
+            android:imeOptions="actionDone"
             android:layout_gravity="center_vertical|center_horizontal"
             />
 

@@ -72,6 +72,7 @@ public class AuthService extends BaseService {
             Log.d(LOG_TAG, "Response Text: " + responseText);
             Log.d(LOG_TAG, "Response Code: " + response.code());
             Log.d(LOG_TAG, "Request Url: " + response.request().url());
+
             Gson gson = new Gson();
 
             if(response.isSuccessful())
