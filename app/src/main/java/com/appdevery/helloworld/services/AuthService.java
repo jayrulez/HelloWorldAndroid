@@ -115,9 +115,17 @@ public class AuthService extends BaseService {
             HashMap<String, String> formBody = new HashMap<String, String>();
             formBody.put("first_name", firstName);
             formBody.put("last_name", lastName);
-            formBody.put("email_address", emailAddress);
-            formBody.put("country_code", countryCode);
-            formBody.put("mobile_number", mobileNumber);
+            if(emailAddress != null && !emailAddress.isEmpty())
+            {
+                formBody.put("email_address", emailAddress);
+            }
+
+            if(countryCode != null && !countryCode.isEmpty() && mobileNumber != null && !mobileNumber.isEmpty())
+            {
+                formBody.put("country_code", countryCode);
+                formBody.put("mobile_number", mobileNumber);
+            }
+
             formBody.put("password", password);
             formBody.put("client_id", context.getString(R.string.client_id));
             formBody.put("client_secret", context.getString(R.string.client_secret));

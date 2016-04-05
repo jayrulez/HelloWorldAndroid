@@ -2,7 +2,7 @@
     <string name="client_id">1_4dr0u57vj0u84wg8wckc84w44co0gck0000wg8cocwk088s4gk</string>
     <string name="client_secret">4gpkvrmwlpuswgoc4cw88kwocg4go0o8wcoo0ogs4ko8k0k4gc</string>
     <string name="app_name">Hello World</string>
-    <string name="loginUsername">Username</string>
+    <string name="loginUsername">Email, mobile or username</string>
     <string name="loginPassword">Password</string>
     <string name="buttonLogin">Login</string>
     <string name="buttonLogout">Logout</string>
@@ -19,4 +19,11 @@
     <string name="buttonSignUp">Sign Up</string>
     <string name="notMember">Not a member?</string>
     <string name="title_activity_launcher">LauncherActivity</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_signup">Signup</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="search_countries">Search&#8230;</string>
 </resources>
