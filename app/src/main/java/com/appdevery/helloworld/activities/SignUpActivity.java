@@ -101,8 +101,8 @@ public class SignUpActivity extends BaseFragmentActivity {
                     public void onFinished(final ActionResponse response) {
                         if(response.isSuccessful())
                         {
-                            String username = editTextEmailAddress.getText().toString();
-                            String password = editTextPassword.getText().toString();
+                            final String username = SignupMode == MODE_EMAIL_SIGNUP ? emailAddress : countryCode + mobileNumber;
+                            final String password = editTextPassword.getText().toString();
 
                             UserTasks.Login loginTask = new UserTasks.Login(authService, new TaskListener<ActionResponse>() {
                                 @Override
@@ -115,15 +115,15 @@ public class SignUpActivity extends BaseFragmentActivity {
                                     }else{
 
                                         Intent intent = new Intent(SignUpActivity.this, LoginActivity.class);
-                                        intent.putExtra("username", SignUpActivity.this.editTextEmailAddress.getText().toString());
-                                        intent.putExtra("password", SignUpActivity.this.editTextPassword.getText().toString());
+                                        intent.putExtra("username", username);
+                                        intent.putExtra("password", password);
 
                                         startActivity(intent);
                                     }
                                 }
                             });
 
-                            loginTask.execute(emailAddress, password);
+                            loginTask.execute(username, password);
                         }else{
                             Context context = getApplicationContext();
                             String message = response.getFirstError();

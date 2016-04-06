@@ -70,6 +70,7 @@ public class CountryListAdapter extends BaseAdapter {
         if (convertView == null) {
             cell = new Cell();
             cellView = inflater.inflate(R.layout.country_row, null);
+            cell.textViewdialCode = (TextView) cellView.findViewById(R.id.row_dial_code);
             cell.textView = (TextView) cellView.findViewById(R.id.row_title);
             cell.imageView = (ImageView) cellView.findViewById(R.id.row_icon);
             cellView.setTag(cell);
@@ -78,6 +79,7 @@ public class CountryListAdapter extends BaseAdapter {
         }
 
         cell.textView.setText(country.getName());
+        cell.textViewdialCode.setText(country.getDialCode());
 
         String drawableName = "flag_"
                 + country.getCode().toLowerCase(Locale.ENGLISH);
@@ -87,6 +89,7 @@ public class CountryListAdapter extends BaseAdapter {
 
     static class Cell {
         public TextView textView;
+        public TextView textViewdialCode;
         public ImageView imageView;
     }
 }
